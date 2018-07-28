@@ -40,6 +40,13 @@ services:
         #     - ./data/mysql:/docker-entrypoint-initdb.d
         # networks:
         #     - back-tier
+    
+    # download: 
+    #     image: nginx
+    #     restart: 'no'
+    #     volumes:
+    #         - ./:/var/www
+    #     command: sh download-wp.sh
 
    
 # networks:
