@@ -1,53 +1,68 @@
 version: '2'
-       
-services: 
-    nginx_local:
-        image: nginx
-        restart: always
-        ports:
-            - "8080:80"
-        working_dir: /var/www
-        volumes:
-            - ./code:/var/www
-            - ./conf/nginx/vhost.conf:/etc/nginx/conf.d/default.conf
-        depends_on:
-            - php_local
+services:
+  # application:
+  #   image: ubuntu:16.04
+  #   hostname: website_server
+  #   volumes:
+  #     - ./public:/var/www/html
 
-    php_local: 
-        image: phalconphp/php-fpm
-        restart: always
-        ports:
-            - "8000:80"
-        working_dir: /var/www
-        volumes:
-            - ./code:/var/www
-            # - ./conf/nginx/config-php.ini:/usr/local/etc/php/conf.d/php.ini
-        depends_on:
-            - mysql_local
-        # hostname: webserver
-        
-    mysql_local:
-        image: mysql:5.7
-        restart: always
-        ports:
-            - "3306:3306"
-        environment:
-            - MYSQL_ROOT_PASSWORD=secret
-            #- variables.env
-        volumes:
-           - ./dbdata/nginx_sql:/var/lib/mysql
-        # volumes:
-        #     - ./data/mysql:/docker-entrypoint-initdb.d
-        # networks:
-        #     - back-tier
+  dk_nginx:
+    image: nginx
+    hostname: nginx_server
+    container_name: container_nginx
+    ports:
+      - "5020:80"                                                                   # Run http://localhost:5020/
+    links:
+      - dk_php
+    # volumes_from:
+    #   - application
+    volumes:
+      - ./public:/var/www/html
+      - ./nginx/logs:/var/log/nginx
+      - ./nginx/conf:/etc/nginx/conf.d
+
+  dk_php:
+    image: bitnami/php-fpm:7.0
+    hostname: php_server
+    container_name: container_php
+    ports:
+      - "5010:9000"
+    # volumes_from:
+    #   - application
+    # links:
+    #   - dk_mariadb:mysql
+    volumes:
+      - ./public:/var/www/html
     
-    # download: 
-    #     image: nginx
-    #     restart: 'no'
-    #     volumes:
-    #         - ./:/var/www
-    #     command: sh download-wp.sh
+  dk_mariadb:
+    image: mariadb:10.2
+    hostname: mysql_server
+    container_name: container_mariadb
+    ports:
+      - "5000:3306"                                                               # Navicat: (HostName: localhost, Port: 5000, Username: root, Password: docker_root123)
+    environment:
+      MYSQL_ROOT_PASSWORD: docker_root123
+      # MYSQL_USER: docker_root                                                   # Tạo user mới
+      # MYSQL_PASSWORD: docker_root123
+      # MYSQL_DATABASE: newdatabase                                               # Tạo database mới
+    volumes:
+      #- ./mysql/data:/var/lib/mysql                                              # Thư mục chứa data base. kích cỡ lớn
+      - ./mysql/logs:/var/log/mysql
 
+  dk_phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    hostname: phpmyadmin_server
+    container_name: container_phpmyadmin
+    links:
+      - dk_mariadb:mysql
+    ports:
+      - 5030:80                                                                   # Run http://localhost:5030
+    environment:
+      MYSQL_USERNAME: root
+      MYSQL_ROOT_PASSWORD: docker_root123
+      PMA_HOST: mysql                                                             # => Login True
+    # networks:                                                                   # Nếu thêm thì phải thêm cho tất cả các image còn lại
+    #     - LEMP_CUSTOM
    
 # networks:
-#     back-tier:
+#     LEMP_CUSTOM:
