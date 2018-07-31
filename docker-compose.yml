@@ -34,6 +34,9 @@ services:
       - dk_mariadb:mysql                                                          # => Có như vậy mới success khi xuất thông báo new PDO("mysql:host=$servername;dbname=wpblog", $username, $password);
     volumes:
       - ./code:/var/www/html
+      - ./config/config-php.ini:/opt/bitnami/php/lib/php.ini                      # Mở phpinfo() để check link chứa file php.ini
+                                                                                        # Truy cập vào container: docker exec -it container_php  /bin/bash
+                                                                                        # Copy file php.ini: cp /opt/bitnami/php/lib/php.ini /var/www/html/
     
   dk_mariadb:
     image: mariadb:10.2                                                           # Hoặc sử dụng mysql:5.7
@@ -46,7 +49,7 @@ services:
       MYSQL_DATABASE: 0.demowp                                                    # Tạo database mới
       # MYSQL_USER: docker_root                                                   # Tạo user mới
       # MYSQL_PASSWORD: docker_root123
-    #volumes:
+    # volumes:
       #- ./mysql/data:/var/lib/mysql                                              # Thư mục chứa data base. kích cỡ lớn nên khi chạy docker bên window hay bị lỗi
       # - ./mysql/logs:/var/log/mysql
 
