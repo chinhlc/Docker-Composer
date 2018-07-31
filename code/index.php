@@ -1,18 +1,10 @@
 <?php
+echo '<div class="center">
+		<a href="https://github.com/frekans7/docker-compose-lemp">Fork from Frekans7</a></br>
+		<a href="index_info/index.html">Docker Containers Info</a></br>
+		<a href="http://localhost:8183/">phpMyAdmin</a></br>
+     </div>';
 
-	$servername = "mysql";
-	$username = "root";
-	$password = "docker_root123";
+echo phpinfo();
 
-	try {
-	    $conn = new PDO("mysql:host=$servername;dbname=0.demowp", $username, $password);
-	    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	    $message = "Connected successfully"; 
-    } catch(PDOException $e){
-    	$message = "Connection failed: " . $e->getMessage();
-    }
 ?>
-
-<div class="center"><?php echo $message; ?></div>
-
-<?php phpinfo(); ?>
