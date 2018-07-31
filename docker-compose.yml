@@ -1,23 +1,24 @@
 version: '2'
 services:
-  # application:
+  # application:                                                                  # Trong nginx đã có OS rồi
   #   image: ubuntu:16.04
   #   hostname: website_server
   #   volumes:
-  #     - ./public:/var/www/html
+  #     - ./code:/var/www/html
 
   dk_nginx:
-    image: nginx
+    image: nginx:1.15.0
     hostname: nginx_server
     container_name: container_nginx
     ports:
       - "5020:80"                                                                   # Run http://localhost:5020/
     links:
       - dk_php
+    # working_dir: /var/www/html
     # volumes_from:
     #   - application
     volumes:
-      - ./public:/var/www/html
+      - ./code:/var/www/html
       - ./nginx/logs:/var/log/nginx
       - ./nginx/conf:/etc/nginx/conf.d
 
@@ -29,28 +30,28 @@ services:
       - "5010:9000"
     # volumes_from:
     #   - application
-    # links:
-    #   - dk_mariadb:mysql
+    links:                                                                        # Liên kết php với mysql.
+      - dk_mariadb:mysql                                                          # => Có như vậy mới success khi xuất thông báo new PDO("mysql:host=$servername;dbname=wpblog", $username, $password);
     volumes:
-      - ./public:/var/www/html
+      - ./code:/var/www/html
     
   dk_mariadb:
-    image: mariadb:10.2
+    image: mariadb:10.2                                                           # Hoặc sử dụng mysql:5.7
     hostname: mysql_server
     container_name: container_mariadb
     ports:
       - "5000:3306"                                                               # Navicat: (HostName: localhost, Port: 5000, Username: root, Password: docker_root123)
     environment:
       MYSQL_ROOT_PASSWORD: docker_root123
+      MYSQL_DATABASE: 0.demowp                                                    # Tạo database mới
       # MYSQL_USER: docker_root                                                   # Tạo user mới
       # MYSQL_PASSWORD: docker_root123
-      # MYSQL_DATABASE: newdatabase                                               # Tạo database mới
-    volumes:
-      #- ./mysql/data:/var/lib/mysql                                              # Thư mục chứa data base. kích cỡ lớn
-      - ./mysql/logs:/var/log/mysql
+    #volumes:
+      #- ./mysql/data:/var/lib/mysql                                              # Thư mục chứa data base. kích cỡ lớn nên khi chạy docker bên window hay bị lỗi
+      # - ./mysql/logs:/var/log/mysql
 
   dk_phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin/phpmyadmin:4.8.2
     hostname: phpmyadmin_server
     container_name: container_phpmyadmin
     links:
@@ -61,7 +62,7 @@ services:
       MYSQL_USERNAME: root
       MYSQL_ROOT_PASSWORD: docker_root123
       PMA_HOST: mysql                                                             # => Login True
-    # networks:                                                                   # Nếu thêm thì phải thêm cho tất cả các image còn lại
+    # networks:                                                                   # Nếu thêm Network thì phải thêm cho tất cả các image còn lại
     #     - LEMP_CUSTOM
    
 # networks:
